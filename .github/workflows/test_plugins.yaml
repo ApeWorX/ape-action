@@ -15,16 +15,17 @@ concurrency:
 jobs:
   run-this-action:
     name: Run action (${{ matrix.plugins }})
-    runs-on: [ubuntu-latest]
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest]
         plugins: [
           'default_with_version_config',
           'default_without_version_in_config',
           'tokens',
-          'tokens==0.8.0'
+          'tokens==0.8.3'
         ]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,7 +38,7 @@ jobs:
 
           if [[ "${{ matrix.plugins }}" == "default_without_version_in_config" ]]; then
             # Remove the version so it defaults to `. -U`.
-            sed -i 's/version: 0.8.0//g' "ape-config.yaml"
+            awk '!/version: 0.8.3/' "ape-config.yaml" > "ape-config.tmp" && mv "ape-config.tmp" "ape-config.yaml"
           fi
 
       - name: Run ape action
